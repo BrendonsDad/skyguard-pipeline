@@ -26,7 +26,6 @@ class SubstanceDesignerDCC(DCC):
 
         env_vars = {
             "DCC": str(this_path.parent.name),
-            "OCIO": str(pipe_path / "lib/ocio/love-v01/config.ocio"),
             "PYTHONPATH": os.pathsep.join(
                 [
                     str(pipe_path),

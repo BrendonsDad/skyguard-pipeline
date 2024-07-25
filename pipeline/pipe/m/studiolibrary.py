@@ -2,6 +2,7 @@ import studiolibrary
 from shared.util import get_anim_path
 
 
+# TODO: change path names
 def run():
     libraries = [
         {

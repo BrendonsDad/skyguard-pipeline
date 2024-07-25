@@ -19,9 +19,7 @@ def close_plugin():
 
 def do_preflight(event: sp.event.Event) -> None:
     metaUpdater = pipe.sp.metadata.MetadataUpdater()
-    srgbChecker = pipe.sp.channels.sRGBChecker()
     metaUpdater.check() or metaUpdater.prompt_update()
-    srgbChecker.check() or srgbChecker.prompt_srgb_fix()
 
 
 if __name__ == "__main__":

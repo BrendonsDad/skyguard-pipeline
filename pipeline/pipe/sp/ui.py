@@ -45,7 +45,6 @@ class SubstanceExportWindow(QMainWindow, ButtonPair):
     _mat_var_dropdown: QComboBox
     # _mat_var_enabled: QtWidgets.QCheckBox
     _metadataManager: pipe.sp.metadata.MetadataUpdater
-    _srgbChecker: pipe.sp.channels.sRGBChecker
     _tex_set_dict: typing.Mapping[sp.textureset.TextureSet, "TexSetWidget"]
     _tex_set_widgets: list["TexSetWidget"]
 
@@ -155,10 +154,8 @@ class SubstanceExportWindow(QMainWindow, ButtonPair):
         """Check for asset metadata and correct channel types before running
         the export"""
         metaUpdater = pipe.sp.metadata.MetadataUpdater()
-        srgbChecker = pipe.sp.channels.sRGBChecker()
         meta = metaUpdater.check() or metaUpdater.do_update()
-        srgb = srgbChecker.check() or srgbChecker.prompt_srgb_fix()
-        return meta and srgb
+        return meta
 
     @property
     def mat_var(self) -> str:

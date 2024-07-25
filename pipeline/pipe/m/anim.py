@@ -73,6 +73,7 @@ class RiggedExporter:
         UsdGeom.SetStageMetersPerUnit(stage, 1.0)
         stage.Save()
 
+    # exports to usd format
     def publish_char(
         self, char: str, anim: bool = False, path: Path | str | None = None
     ) -> None:
@@ -101,4 +102,4 @@ class RiggedExporter:
                 }
             )
         mc.select(self.EXPORT_SETS[char])
-        mc.mayaUSDExport(**kwargs)  # type: ignore[attr-defined]
+        mc.mayaUSDExport(**kwargs)  # type: ignore[attr-defined] # TODO: change to export to whatever file format (likely fbx)

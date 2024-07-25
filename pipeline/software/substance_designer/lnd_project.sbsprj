@@ -20,23 +20,11 @@
 				<version>2</version>
 			</settingsinfo>
 		</versioncontrol>
-		<ocioenv>
-			<ociofloatbitmapcolorspace>ACEScg</ociofloatbitmapcolorspace>
-			<ociodefaultview>Technical</ociodefaultview>
-			<ociodefaultdisplay>Display Rec.709</ociodefaultdisplay>
-			<ociocolormanagegraphthumbnails>true</ociocolormanagegraphthumbnails>
-			<ocioautodetectcolorspacefromfilenamemethod>parse_filename</ocioautodetectcolorspacefromfilenamemethod>
-			<ocio8bitbitmapcolorspace>ACEScg</ocio8bitbitmapcolorspace>
-			<ocio16bitbitmapcolorspace>ACEScg</ocio16bitbitmapcolorspace>
-		</ocioenv>
 		<library>
 			<settingsinfo>
 				<version>2</version>
 			</settingsinfo>
 		</library>
-		<colormanagement>
-			<colormanagementengine>ocio</colormanagementengine>
-		</colormanagement>
 		<ace>
 			<aceuseembeddedprofiles>true</aceuseembeddedprofiles>
 			<acerenderingintent>relative-colorimetric</acerenderingintent>

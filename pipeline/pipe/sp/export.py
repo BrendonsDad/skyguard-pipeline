@@ -43,6 +43,9 @@ class TexSetExportSettings:
     normal_source: NormalSource
 
 
+# TODO: remove renderman export settings
+
+
 class Exporter:
     """Class to manage exporting and converting textures"""
 
@@ -170,6 +173,7 @@ class Exporter:
                     "name": export_settings.tex_set.name(),
                     "maps": [
                         # Default RenderMan maps
+                        # TO DELETE
                         *Exporter._shader_maps(export_settings),
                         # Extra AOVs
                         *[

@@ -2,6 +2,7 @@ import dwpicker
 
 from shared.util import get_rigging_path
 
+# TODO: change file names
 picker_filenames = [
     "Rayden_Picker.json",
     "Robin_Picker.json",

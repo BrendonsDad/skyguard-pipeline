@@ -139,7 +139,7 @@ class IOManager:
             req.add_header("x-pipebot-signature", hashcheck)
             request.urlopen(req)
 
-        # save the file
+        # save the file TODO: change to fbx (or obj?) export settings
         kwargs = {
             "file": temp_publish_path if self.system == "Windows" else publish_path,
             "selection": True,
@@ -150,6 +150,7 @@ class IOManager:
 
         # if on Windows, work around this bug: https://github.com/PixarAnimationStudios/OpenUSD/issues/849
         # TODO: check if this is still needed in Maya 2025
+        # only need if using usd
         if self.system == "Windows":
             shutil.move(temp_publish_path, publish_path)
 

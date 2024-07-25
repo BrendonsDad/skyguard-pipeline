@@ -5,6 +5,7 @@ import maya.cmds as mc
 
 def main():
     # Enable required blugins
+    # maybe enable fbx game exporter plugin?
     plugins = [
         "mayaUsdPlugin",
     ]

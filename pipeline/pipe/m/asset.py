@@ -1,14 +1,8 @@
 from __future__ import annotations
 
-import hmac
-import json
 import logging
-import os
 import platform
-import shutil
 
-from hashlib import sha1
-from urllib import request
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -26,7 +20,6 @@ from pipe.glui.dialogs import (
     MessageDialogCustomButtons,
 )
 from shared.util import get_production_path
-from env import PIPEBOT_SECRET, PIPEBOT_URL
 from env_sg import DB_Config
 
 from modelChecker.modelChecker_UI import UI as MCUI
@@ -116,43 +109,17 @@ class IOManager:
         publish_path = (
             str(publish_dir / asset.name)
             + ("_SUBSTANCE" if dialog.is_substance_only else "")
-            + ".usd"
+            + ".fbx"
         )
-        temp_publish_path = os.getenv("TEMP", "") + asset.name + ".usd"
-
-        # notify webhook of override
-        if override:
-            override_info = {
-                "user": os.getlogin(),
-                "asset": asset.disp_name,
-                "path": publish_path,
-            }
-            data = bytes(json.dumps(override_info), encoding="utf-8")
-            hashcheck = (
-                "sha1=" + hmac.new(PIPEBOT_SECRET.encode(), data, sha1).hexdigest()
-            )
-
-            req = request.Request(
-                url=PIPEBOT_URL + "/model_checker",
-                data=data,
-            )
-            req.add_header("x-pipebot-signature", hashcheck)
-            request.urlopen(req)
-
-        # save the file TODO: change to fbx (or obj?) export settings
-        kwargs = {
-            "file": temp_publish_path if self.system == "Windows" else publish_path,
-            "selection": True,
-            "shadingMode": "useRegistry",
-            "stripNamespaces": True,
-        }
-        mc.mayaUSDExport(**kwargs)  # type: ignore[attr-defined]
-
-        # if on Windows, work around this bug: https://github.com/PixarAnimationStudios/OpenUSD/issues/849
-        # TODO: check if this is still needed in Maya 2025
-        # only need if using usd
-        if self.system == "Windows":
-            shutil.move(temp_publish_path, publish_path)
+        # FIXME: assets are unnamed when saved, defaulting to "None"
+        mc.file(
+            publish_path,
+            force=True,
+            options="",
+            type="FBX export",
+            preserveReferences=True,
+            exportSelected=True,
+        )
 
         confirm = MessageDialog(
             self.window,

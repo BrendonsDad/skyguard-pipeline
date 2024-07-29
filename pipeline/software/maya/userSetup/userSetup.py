@@ -7,7 +7,7 @@ def main():
     # Enable required blugins
     # maybe enable fbx game exporter plugin?
     plugins = [
-        "mayaUsdPlugin",
+        "fbxmaya",
     ]
     pluginInfo = mc.pluginInfo(q=True, listPlugins=True)
     for plugin in plugins:

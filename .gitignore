@@ -29,3 +29,6 @@ pipeline/lib/axiom
 
 # Ignore third-party Python libraries
 pipeline/lib/python
+
+# Ignore debug log
+debug.log

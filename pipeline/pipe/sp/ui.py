@@ -178,7 +178,7 @@ class SubstanceExportWindow(QMainWindow, ButtonPair):
                     wgt.displacement_source,
                     wgt.normal_type,
                     wgt.normal_source,
-                    wgt.emission_enabled
+                    wgt.emission_enabled,
                 )
                 for ts, wgt in self._tex_set_dict.items()
                 if wgt.enabled
@@ -456,7 +456,7 @@ class TexSetWidget(QtWidgets.QWidget):
             self._DISP_SOURCE_STRS,
             self._displacement_source_dropdown.currentText(),
         )
-    
+
     @property
     def emission_enabled(self) -> bool:
         return self._emission_checkbox.isChecked()

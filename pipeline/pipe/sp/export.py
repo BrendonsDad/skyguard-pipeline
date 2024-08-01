@@ -3,7 +3,6 @@ from __future__ import annotations
 import substance_painter as sp
 
 import logging
-import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -24,7 +23,6 @@ from pipe.struct.material import (
     MaterialInfo,
 )
 from pipe.glui.dialogs import MessageDialog
-from pipe.texconverter import TexConverter, TexConversionError
 from shared.util import get_production_path, resolve_mapped_path
 from env_sg import DB_Config
 
@@ -46,6 +44,7 @@ class TexSetExportSettings:
 
 # TODO: remove renderman export settings
 
+
 class Exporter:
     """Class to manage exporting and converting textures"""
 
@@ -58,7 +57,11 @@ class Exporter:
 
     def __init__(self) -> None:
         self._conn = DB.Get(DB_Config)
-        id = sp.project.Metadata("LnD").get("asset_id") # TODO: talk to Scott about what the project.Metadata is and if I need to configure my own
+        id = sp.project.Metadata(
+            "LnD"
+        ).get(
+            "asset_id"
+        )  # TODO: talk to Scott about what the project.Metadata is and if I need to configure my own
         assert (a := self._conn.get_asset_by_id(id)) is not None
         self._asset = a
 
@@ -104,6 +107,7 @@ class Exporter:
         except Exception as e:
             print(e)
             return False
+        log.debug(export_result)  # added so ruff doesn't get mad at me
 
         self.write_mat_info(exp_setting_arr)
 
@@ -206,7 +210,9 @@ class Exporter:
                         #     )
                         # ],
                         # Preview Surface
-                        *Exporter._preview_surface_maps(export_settings.export_emission),
+                        *Exporter._preview_surface_maps(
+                            export_settings.export_emission
+                        ),
                     ],
                 }
                 for export_settings in export_settings_arr
@@ -462,21 +468,21 @@ class Exporter:
         if should_export_emission:
             surface_maps.append(
                 {
-                "fileName": "$textureSet_Emissive(_$colorSpace)(.$udim)",
-                "channels": [
-                    {
-                        "destChannel": ch,
-                        "srcChannel": ch,
-                        "srcMapType": "documentMap",
-                        "srcMapName": "emissive",
-                    }
-                    for ch in "RGB"
-                ],
-                "parameters": {
-                    "bitDepth": "8",
-                    "dithering": True,
-                    "fileFormat": "png",
+                    "fileName": "$textureSet_Emissive(_$colorSpace)(.$udim)",
+                    "channels": [
+                        {
+                            "destChannel": ch,
+                            "srcChannel": ch,
+                            "srcMapType": "documentMap",
+                            "srcMapName": "emissive",
+                        }
+                        for ch in "RGB"
+                    ],
+                    "parameters": {
+                        "bitDepth": "8",
+                        "dithering": True,
+                        "fileFormat": "png",
+                    },
                 },
-            },
             )
         return surface_maps

@@ -11,6 +11,7 @@ from PySide2.QtWidgets import QCheckBox, QWidget
 from PySide2.QtGui import QTextCursor
 
 import maya.cmds as mc
+import maya.mel as mel
 
 import pipe
 from pipe.db import DB
@@ -19,7 +20,7 @@ from pipe.glui.dialogs import (
     MessageDialog,
     MessageDialogCustomButtons,
 )
-from shared.util import get_production_path
+from shared.util import get_production_path, get_pipe_path
 from env_sg import DB_Config
 
 from modelChecker.modelChecker_UI import UI as MCUI
@@ -111,6 +112,13 @@ class IOManager:
             + ("_SUBSTANCE" if dialog.is_substance_only else "")
             + ".fbx"
         )
+
+        preset_path = str(
+            get_pipe_path() / "/m/FBXPresets/Export/FBXAssetNotRigged.fbxexportpreset"
+        )
+        preset_path = preset_path.replace("/", "//")
+        mel.eval("FBXResetImport")
+        mel.eval('FBXLoadExportPresetFile -f "%s"' % preset_path)
 
         mc.file(
             publish_path,

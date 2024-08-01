@@ -20,7 +20,7 @@ from pipe.glui.dialogs import (
     MessageDialog,
     MessageDialogCustomButtons,
 )
-from shared.util import get_production_path, get_pipe_path
+from shared.util import get_production_path
 from env_sg import DB_Config
 
 from modelChecker.modelChecker_UI import UI as MCUI
@@ -113,12 +113,15 @@ class IOManager:
             + ".fbx"
         )
 
-        preset_path = str(
-            get_pipe_path() / "/m/FBXPresets/Export/FBXAssetNotRigged.fbxexportpreset"
-        )
-        preset_path = preset_path.replace("/", "//")
+        # TODO: un-hardcode it
+        # preset_path = get_pipe_path() / "/m/FBXPresets/Export/FBXAssetNotRigged.fbxexportpreset"
+        # preset_path_str = str(preset_path)
+        # preset_path_str = preset_path_str.replace("\\", "//")
+
+        preset_path_str = "G://skyguard//pipeline//pipeline//pipe//m//FBXPresets//Export//FBXAssetNotRigged.fbxexportpreset"
+
         mel.eval("FBXResetImport")
-        mel.eval('FBXLoadExportPresetFile -f "%s"' % preset_path)
+        mel.eval('FBXLoadExportPresetFile -f "%s"' % preset_path_str)
 
         mc.file(
             publish_path,

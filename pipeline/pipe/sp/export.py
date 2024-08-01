@@ -41,10 +41,10 @@ class TexSetExportSettings:
     displacement_source: DisplacementSource
     normal_type: NormalType
     normal_source: NormalSource
+    export_emission: bool
 
 
 # TODO: remove renderman export settings
-
 
 class Exporter:
     """Class to manage exporting and converting textures"""
@@ -58,7 +58,7 @@ class Exporter:
 
     def __init__(self) -> None:
         self._conn = DB.Get(DB_Config)
-        id = sp.project.Metadata("LnD").get("asset_id")
+        id = sp.project.Metadata("LnD").get("asset_id") # TODO: talk to Scott about what the project.Metadata is and if I need to configure my own
         assert (a := self._conn.get_asset_by_id(id)) is not None
         self._asset = a
 
@@ -97,6 +97,7 @@ class Exporter:
         config = Exporter._generate_config(self._src_path, exp_setting_arr)
         log.debug(config)
 
+        # NOTE: This needs to be left in in order for anything to actually export
         export_result: sp.export.TextureExportResult
         try:
             export_result = sp.export.export_project_textures(config)
@@ -106,23 +107,23 @@ class Exporter:
 
         self.write_mat_info(exp_setting_arr)
 
-        tex_converter = TexConverter(
-            self._tex_path, self._preview_path, export_result.textures.values()
-        )
+        # tex_converter = TexConverter(
+        #     self._tex_path, self._preview_path, export_result.textures.values()
+        # )
 
-        try:
-            tex_converter.convert_tex()
-            tex_converter.convert_previewsurface()
-        except TexConversionError:
-            MessageDialog(
-                get_main_qt_window(),
-                (
-                    "Warning! Not all textures were converted! Make sure to "
-                    'stop rendering this asset in Houdini and press "Reset '
-                    'RenderMan RIS/XPU".'
-                ),
-            ).exec_()
-            return False
+        # try:
+        #     tex_converter.convert_tex()
+        #     tex_converter.convert_previewsurface()
+        # except TexConversionError:
+        #     MessageDialog(
+        #         get_main_qt_window(),
+        #         (
+        #             "Warning! Not all textures were converted! Make sure to "
+        #             'stop rendering this asset in Houdini and press "Reset '
+        #             'RenderMan RIS/XPU".'
+        #         ),
+        #     ).exec_()
+        #     return False
 
         return True
 
@@ -161,6 +162,7 @@ class Exporter:
             f.write(new_mat_info.to_json())
         return True
 
+    # TODO: change export settings to not use udims/anything related to usds
     @staticmethod
     def _generate_config(
         asset_path: Path, export_settings_arr: typing.Iterable[TexSetExportSettings]
@@ -174,37 +176,37 @@ class Exporter:
                     "maps": [
                         # Default RenderMan maps
                         # TO DELETE
-                        *Exporter._shader_maps(export_settings),
-                        # Extra AOVs
-                        *[
-                            {
-                                "fileName": f"$textureSet_{getattr(ch, 'label', None) and ch.label().replace(' ', '') or ch.type().name}(_$colorSpace)(.$udim)",
-                                "channels": [
-                                    {
-                                        "destChannel": color,
-                                        "srcChannel": color,
-                                        "srcMapType": "documentMap",
-                                        "srcMapName": ch.type().name.lower(),
-                                    }
-                                    for color in colors
-                                ],
-                                "parameters": {
-                                    "bitDepth": bit_depth.lower(),
-                                    "fileFormat": "png",
-                                    "sizeLog2": export_settings.resolution,
-                                },
-                            }
-                            for ch in export_settings.extra_channels
-                            for colors, bit_depth in re.findall(
-                                r"^s?(L|RGB)(\d{1,2}F?)$",
-                                export_settings.tex_set.get_stack()
-                                .get_channel(ch.type())
-                                .format()
-                                .name,
-                            )
-                        ],
+                        # *Exporter._shader_maps(export_settings),
+                        # # Extra AOVs
+                        # *[
+                        #     {
+                        #         "fileName": f"$textureSet_{getattr(ch, 'label', None) and ch.label().replace(' ', '') or ch.type().name}(_$colorSpace)(.$udim)",
+                        #         "channels": [
+                        #             {
+                        #                 "destChannel": color,
+                        #                 "srcChannel": color,
+                        #                 "srcMapType": "documentMap",
+                        #                 "srcMapName": ch.type().name.lower(),
+                        #             }
+                        #             for color in colors
+                        #         ],
+                        #         "parameters": {
+                        #             "bitDepth": bit_depth.lower(),
+                        #             "fileFormat": "png",
+                        #             "sizeLog2": export_settings.resolution,
+                        #         },
+                        #     }
+                        #     for ch in export_settings.extra_channels
+                        #     for colors, bit_depth in re.findall(
+                        #         r"^s?(L|RGB)(\d{1,2}F?)$",
+                        #         export_settings.tex_set.get_stack()
+                        #         .get_channel(ch.type())
+                        #         .format()
+                        #         .name,
+                        #     )
+                        # ],
                         # Preview Surface
-                        *Exporter._preview_surface_maps(),
+                        *Exporter._preview_surface_maps(export_settings.export_emission),
                     ],
                 }
                 for export_settings in export_settings_arr
@@ -394,8 +396,8 @@ class Exporter:
         return maps
 
     @staticmethod
-    def _preview_surface_maps() -> list:
-        return [
+    def _preview_surface_maps(should_export_emission: bool) -> list:
+        surface_maps = [
             {
                 "fileName": "$textureSet_DiffuseColor(_$colorSpace)(.$udim)",
                 "channels": [
@@ -410,7 +412,7 @@ class Exporter:
                 "parameters": {
                     "bitDepth": "8",
                     "dithering": True,
-                    "fileFormat": "jpeg",
+                    "fileFormat": "png",
                 },
             },
             {
@@ -437,24 +439,7 @@ class Exporter:
                 ],
                 "parameters": {
                     "bitDepth": "8",
-                    "fileFormat": "jpeg",
-                },
-            },
-            {
-                "fileName": "$textureSet_Emissive(_$colorSpace)(.$udim)",
-                "channels": [
-                    {
-                        "destChannel": ch,
-                        "srcChannel": ch,
-                        "srcMapType": "documentMap",
-                        "srcMapName": "emissive",
-                    }
-                    for ch in "RGB"
-                ],
-                "parameters": {
-                    "bitDepth": "8",
-                    "dithering": True,
-                    "fileFormat": "jpeg",
+                    "fileFormat": "png",
                 },
             },
             {
@@ -470,7 +455,28 @@ class Exporter:
                 ],
                 "parameters": {
                     "bitDepth": "8",
-                    "fileFormat": "jpeg",
+                    "fileFormat": "png",
                 },
             },
         ]
+        if should_export_emission:
+            surface_maps.append(
+                {
+                "fileName": "$textureSet_Emissive(_$colorSpace)(.$udim)",
+                "channels": [
+                    {
+                        "destChannel": ch,
+                        "srcChannel": ch,
+                        "srcMapType": "documentMap",
+                        "srcMapName": "emissive",
+                    }
+                    for ch in "RGB"
+                ],
+                "parameters": {
+                    "bitDepth": "8",
+                    "dithering": True,
+                    "fileFormat": "png",
+                },
+            },
+            )
+        return surface_maps

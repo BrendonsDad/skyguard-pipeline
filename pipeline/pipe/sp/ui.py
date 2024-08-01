@@ -77,7 +77,7 @@ class SubstanceExportWindow(QMainWindow, ButtonPair):
         self._setup_ui()
 
     def _setup_ui(self):
-        self.setWindowTitle("LnD Publish Textures")
+        self.setWindowTitle("Sky Publish Textures")
 
         # Make sure window always stays on top
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
@@ -178,6 +178,7 @@ class SubstanceExportWindow(QMainWindow, ButtonPair):
                     wgt.displacement_source,
                     wgt.normal_type,
                     wgt.normal_source,
+                    wgt.emission_enabled
                 )
                 for ts, wgt in self._tex_set_dict.items()
                 if wgt.enabled
@@ -211,6 +212,7 @@ class TexSetWidget(QtWidgets.QWidget):
     _normal_source_dropdown: QComboBox
     _normal_type_dropdown: QComboBox
     _resolution_dropdown: QComboBox
+    _emission_checkbox: QtWidgets.QCheckBox
     _settings_container: QtWidgets.QWidget
     _stack: sp.textureset.Stack
     _tex_set: sp.textureset.TextureSet
@@ -382,6 +384,12 @@ class TexSetWidget(QtWidgets.QWidget):
             )
         )
 
+        # Toggle Emission map export
+        settings_layout.addWidget(QLabel("Export Emission Map: "), 6, 0)
+        self._emission_checkbox = QtWidgets.QCheckBox()
+        self._emission_checkbox.setChecked(False)
+        settings_layout.addWidget(self._emission_checkbox)
+
         self.setLayout(layout)
 
     def _setup_extra_channel_layout(self) -> bool:
@@ -448,3 +456,7 @@ class TexSetWidget(QtWidgets.QWidget):
             self._DISP_SOURCE_STRS,
             self._displacement_source_dropdown.currentText(),
         )
+    
+    @property
+    def emission_enabled(self) -> bool:
+        return self._emission_checkbox.isChecked()

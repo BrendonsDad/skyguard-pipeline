@@ -111,7 +111,7 @@ class IOManager:
             + ("_SUBSTANCE" if dialog.is_substance_only else "")
             + ".fbx"
         )
-        # FIXME: assets are unnamed when saved, defaulting to "None"
+        
         mc.file(
             publish_path,
             force=True,

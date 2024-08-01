@@ -100,22 +100,11 @@ class Asset(SGDiffable):
         },
         on_setattr=attrs.setters.frozen,
     )
-    variants: list[AssetStub] = field(metadata={_SG_NAME: "assets"})
     version = None
 
     @property
-    def is_variant(self) -> bool:
-        return "_" in self.name
-
-    @property
     def tex_path(self) -> Optional[str]:
-        return f"{self.path}/tex/" + (self.variant_name or "main")
-
-    @property
-    def variant_name(self) -> Optional[str]:
-        if not self.is_variant:
-            return None
-        return self.name.split("_")[1]
+        return f"{self.path}/textures/"
 
 
 @attrs.frozen

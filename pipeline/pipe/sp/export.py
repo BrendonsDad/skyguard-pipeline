@@ -68,17 +68,12 @@ class Exporter:
     def _init_paths(self, mat_var: str) -> None:
         # initialize paths, pulling from SG database
         assert self._asset.tex_path is not None
-        base_path = get_production_path() / self._asset.tex_path / "variants" / mat_var
+        base_path = get_production_path() / self._asset.tex_path
 
         self._out_path = resolve_mapped_path(base_path)
-        self._src_path = self._out_path / "src"
-        self._tex_path = self._out_path / "tex"
-        self._preview_path = self._out_path / "preview"
 
         # create paths if not exist
-        self._src_path.mkdir(parents=True, exist_ok=True)
-        self._tex_path.mkdir(parents=True, exist_ok=True)
-        self._preview_path.mkdir(parents=True, exist_ok=True)
+        self._out_path.mkdir(parents=True, exist_ok=True)
 
     def export(
         self,
@@ -97,7 +92,7 @@ class Exporter:
             ).exec_()
             return False
 
-        config = Exporter._generate_config(self._src_path, exp_setting_arr)
+        config = Exporter._generate_config(self._out_path, exp_setting_arr)
         log.debug(config)
 
         # NOTE: This needs to be left in in order for anything to actually export
@@ -110,24 +105,6 @@ class Exporter:
         log.debug(export_result)  # added so ruff doesn't get mad at me
 
         self.write_mat_info(exp_setting_arr)
-
-        # tex_converter = TexConverter(
-        #     self._tex_path, self._preview_path, export_result.textures.values()
-        # )
-
-        # try:
-        #     tex_converter.convert_tex()
-        #     tex_converter.convert_previewsurface()
-        # except TexConversionError:
-        #     MessageDialog(
-        #         get_main_qt_window(),
-        #         (
-        #             "Warning! Not all textures were converted! Make sure to "
-        #             'stop rendering this asset in Houdini and press "Reset '
-        #             'RenderMan RIS/XPU".'
-        #         ),
-        #     ).exec_()
-        #     return False
 
         return True
 
@@ -178,37 +155,6 @@ class Exporter:
                 {
                     "name": export_settings.tex_set.name(),
                     "maps": [
-                        # Default RenderMan maps
-                        # TO DELETE
-                        # *Exporter._shader_maps(export_settings),
-                        # # Extra AOVs
-                        # *[
-                        #     {
-                        #         "fileName": f"$textureSet_{getattr(ch, 'label', None) and ch.label().replace(' ', '') or ch.type().name}(_$colorSpace)(.$udim)",
-                        #         "channels": [
-                        #             {
-                        #                 "destChannel": color,
-                        #                 "srcChannel": color,
-                        #                 "srcMapType": "documentMap",
-                        #                 "srcMapName": ch.type().name.lower(),
-                        #             }
-                        #             for color in colors
-                        #         ],
-                        #         "parameters": {
-                        #             "bitDepth": bit_depth.lower(),
-                        #             "fileFormat": "png",
-                        #             "sizeLog2": export_settings.resolution,
-                        #         },
-                        #     }
-                        #     for ch in export_settings.extra_channels
-                        #     for colors, bit_depth in re.findall(
-                        #         r"^s?(L|RGB)(\d{1,2}F?)$",
-                        #         export_settings.tex_set.get_stack()
-                        #         .get_channel(ch.type())
-                        #         .format()
-                        #         .name,
-                        #     )
-                        # ],
                         # Preview Surface
                         *Exporter._preview_surface_maps(
                             export_settings.export_emission

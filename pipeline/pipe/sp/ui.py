@@ -43,7 +43,6 @@ class SubstanceExportWindow(QMainWindow, ButtonPair):
     _conn: DB
     _main_layout: QLayout
     _mat_var_dropdown: QComboBox
-    # _mat_var_enabled: QtWidgets.QCheckBox
     _metadataManager: pipe.sp.metadata.MetadataUpdater
     _tex_set_dict: typing.Mapping[sp.textureset.TextureSet, "TexSetWidget"]
     _tex_set_widgets: list["TexSetWidget"]

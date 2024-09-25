@@ -51,9 +51,7 @@ class Exporter:
     _asset: Asset
     _conn: DB
     _out_path: Path
-    _preview_path: Path
-    _src_path: Path
-    _tex_path: Path
+    _config_path: Path
 
     def __init__(self) -> None:
         self._conn = DB.Get(DB_Config)
@@ -71,9 +69,11 @@ class Exporter:
         base_path = get_production_path() / self._asset.tex_path
 
         self._out_path = resolve_mapped_path(base_path)
+        self._config_path = self._out_path / "mat_config"
 
         # create paths if not exist
         self._out_path.mkdir(parents=True, exist_ok=True)
+        self._config_path.mkdir(parents=True, exist_ok=True)
 
     def export(
         self,
@@ -112,7 +112,7 @@ class Exporter:
         self, export_settings_arr: typing.Iterable[TexSetExportSettings]
     ) -> bool:
         """Write out JSON file with information about the texturesets"""
-        mat_info_path = self._out_path / "mat.json"
+        mat_info_path = self._config_path / "mat.json"
         old_mat_info: MaterialInfo
         if mat_info_path.exists():
             with open(mat_info_path, "r") as f:
@@ -139,11 +139,10 @@ class Exporter:
                 },
             }
         )
-        with open(str(self._out_path / "mat.json"), "w", encoding="utf-8") as f:
+        with open(str(self._config_path / "mat.json"), "w", encoding="utf-8") as f:
             f.write(new_mat_info.to_json())
         return True
 
-    # TODO: change export settings to not use udims/anything related to usds
     @staticmethod
     def _generate_config(
         asset_path: Path, export_settings_arr: typing.Iterable[TexSetExportSettings]
@@ -351,7 +350,7 @@ class Exporter:
     def _preview_surface_maps(should_export_emission: bool) -> list:
         surface_maps = [
             {
-                "fileName": "$textureSet_DiffuseColor(_$colorSpace)(.$udim)",
+                "fileName": "T_$textureSet_BaseColor(.$udim)",
                 "channels": [
                     {
                         "destChannel": ch,
@@ -368,7 +367,7 @@ class Exporter:
                 },
             },
             {
-                "fileName": "$textureSet_ORM(_$colorSpace)(.$udim)",
+                "fileName": "T_$textureSet_ORM(.$udim)",
                 "channels": [
                     {
                         "destChannel": "R",
@@ -395,7 +394,7 @@ class Exporter:
                 },
             },
             {
-                "fileName": "$textureSet_NormalDX(_$colorSpace)(.$udim)",
+                "fileName": "T_$textureSet_Normal(.$udim)",
                 "channels": [
                     {
                         "destChannel": ch,
@@ -414,7 +413,7 @@ class Exporter:
         if should_export_emission:
             surface_maps.append(
                 {
-                    "fileName": "$textureSet_Emissive(_$colorSpace)(.$udim)",
+                    "fileName": "T_$textureSet_Emissive(.$udim)",
                     "channels": [
                         {
                             "destChannel": ch,

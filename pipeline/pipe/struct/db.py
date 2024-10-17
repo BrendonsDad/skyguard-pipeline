@@ -120,21 +120,6 @@ class Asset(SGEntity):
         return f"{self.path}/textures/"
 
 
-@attrs.define
-class Environment(SGEntity):
-    name: str = field(metadata={_SG_NAME: "sg_pipe_name"})
-
-    @property
-    def disp_name(self) -> str:
-        """Alias for code"""
-        return self.code or ""
-
-
-@attrs.define
-class EnvironmentStub(AssetStub):
-    pass
-
-
 @attrs.frozen
 class SequenceStub(SGEntityStub):
     """Represent sequence "stubs" that come from ShotGrid"""

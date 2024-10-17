@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING
 
 from pipe.struct.db import (
     Asset,
-    Environment,
     Sequence,
     SGEntity,
     SGEntityStub,
@@ -73,7 +72,6 @@ class SGaaDB(DBInterface):
 
         self._sg_entity_lists = {}
         self._load_sg_asset_list()
-        self._load_sg_env_list()
         self._load_sg_sequence_list()
         self._load_sg_shot_list()
 
@@ -102,12 +100,6 @@ class SGaaDB(DBInterface):
         with self._cache_lock:
             query = _AssetListQuery(self._id)
             self._sg_entity_lists[Asset.__name__] = query.exec(self._sg)
-
-    def _load_sg_env_list(self) -> None:
-        """Load the list of environments from SG to local cache"""
-        with self._cache_lock:
-            query = _EnvironmentListQuery(self._id)
-            self._sg_entity_lists[Environment.__name__] = query.exec(self._sg)
 
     def _load_sg_sequence_list(self) -> None:
         """Load the list of sequences from SG to local cache"""
@@ -250,14 +242,6 @@ class SGaaDB(DBInterface):
             self.expire_cache()
         return True
 
-    get_env_attr_list: T_GetAttrList = pm(get_entity_attr_list, Environment)  # type: ignore[assignment] # noqa: F405
-    get_env_by_attr: T_GetEnvByAttr = pm(get_entity_by_attr, Environment)  # type: ignore[assignment] # noqa: F405
-    get_env_by_code: T_GetEnvByCode = pm(get_env_by_attr, "code")  # type: ignore[assignment] # noqa: F405
-    get_env_by_id: T_GetEnvById = pm(get_env_by_attr, "id")  # type: ignore[assignment] # noqa: F405
-    get_env_by_stub: T_GetEnvByStub = pm(get_entity_by_stub, Environment)  # type: ignore[assignment] # noqa: F405
-    get_env_code_list: T_GetCodeList = pm(get_env_attr_list, "code")  # type: ignore[assignment] # noqa: F405
-    get_envs_by_stub: T_GetEnvsByStub = pm(get_entities_by_stub, Environment)  # type: ignore[assignment] # noqa: F405
-
     get_sequence_attr_list: T_GetAttrList = pm(get_entity_attr_list, Sequence)  # type: ignore[assignment] # noqa: F405
     get_sequence_by_attr: T_GetSeqByAttr = pm(get_entity_by_attr, Sequence)  # type: ignore[assignment] # noqa: F405
     get_sequence_by_code: T_GetSeqByCode = pm(get_sequence_by_attr, "code")  # type: ignore[assignment] # noqa: F405
@@ -376,33 +360,6 @@ class _AssetListQuery(_Query):
                     ("sg_asset_type", "is_not", t) for t in self._untracked_asset_types
                 ],
             },
-        ]
-
-        return filters
-
-
-class _EnvironmentListQuery(_Query):
-    # Override
-    def exec(self, sg: shotgun_api3.Shotgun) -> list[dict]:
-        return sg.find("Asset", self.filters, self.fields)
-
-    # Override
-    @property
-    def _base_fields(self) -> list[str]:
-        return [
-            "code",  # display name
-            "sg_pipe_name",  # internal name
-            "sg_path",  # environment path
-            "id",  # asset id
-            "shots",  # shots environment present in
-        ]
-
-    # Override
-    @property
-    def _base_filters(self) -> list[Filter]:
-        filters: list[Filter] = [
-            ("sg_status_list", "is_not", "oop"),
-            ("sg_asset_type", "is", "Environment"),
         ]
 
         return filters

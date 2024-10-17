@@ -38,10 +38,10 @@ _con.register_structure_hook_factory(
 @attrs.define
 class SGDiffable(Diffable):
     @classmethod
-    def from_sg(cls: Type[_S], sg_stub: Optional[dict]) -> _S:
-        if not sg_stub:
+    def from_sg(cls: Type[_S], sg_dict: Optional[dict]) -> _S:
+        if not sg_dict:
             raise TypeError(f"Cannot create {cls.__name__} from empty dict")
-        return _con.structure(sg_stub, cls)
+        return _con.structure(sg_dict, cls)
 
     @classmethod
     def map_sg_field_names(cls: Type[attrs.AttrsInstance], name: str) -> str:

@@ -6,6 +6,7 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
+# from PIL import Image
 
 if TYPE_CHECKING:
     import typing
@@ -44,6 +45,10 @@ class TexSetExportSettings:
 
 # TODO: remove renderman export settings
 
+
+
+# Note: All 4 of the inputs for this one are meant to be 2-dimensional arrays with their associated values ranging from 1 to 255. (preferred, though I suppose larger values could be used. It just spikes the filesize if you choose to save it) 
+# HOW TO USE OUTPUT: It is a numpy array. Slicing, slicing, slicing. output[:,:,0] is metal, 1 is occlusion, 2 is roughness, 3 is a gradient mask
 
 class Exporter:
     """Class to manage exporting and converting textures"""
@@ -107,6 +112,8 @@ class Exporter:
         self.write_mat_info(exp_setting_arr)
 
         return True
+
+    
 
     def write_mat_info(
         self, export_settings_arr: typing.Iterable[TexSetExportSettings]

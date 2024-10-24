@@ -44,6 +44,9 @@ class MayaDCC(DCC):
                 [
                     str(pipe_path),
                     str(this_path.parent / "scripts"),
+                    str(this_path.parent / "scripts/dwpicker_git"),
+                    str(this_path.parent / "scripts/maya-timeline-marker_git/scripts"),
+                    str(this_path.parent / "scripts/modelChecker_git"),
                     str(this_path.parent / "userSetup"),
                     str(this_path.parent / "scripts/studiolibrary/src"),
                 ]

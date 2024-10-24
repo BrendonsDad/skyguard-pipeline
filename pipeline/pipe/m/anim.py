@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import typing
-from PySide2.QtWidgets import QWidget
+from Qt.QtWidgets import QWidget
 
 import maya.cmds as mc
 

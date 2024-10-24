@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import typing
-from PySide2.QtWidgets import QCheckBox, QWidget
-from PySide2.QtGui import QTextCursor
+from Qt.QtWidgets import QCheckBox, QWidget
+from Qt.QtGui import QTextCursor
 
 import maya.cmds as mc
 import maya.mel as mel

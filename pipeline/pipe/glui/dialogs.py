@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import re
 
-from PySide2 import QtWidgets, QtCore
+from Qt import QtWidgets, QtCore
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -23,10 +23,10 @@ class ButtonPair:
         ok_name: str = "OK",
         cancel_name: str = "Cancel",
     ) -> None:
-        self.buttons = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok
-            | (has_cancel_button and QtWidgets.QDialogButtonBox.Cancel)
-        )
+        button_list = QtWidgets.QDialogButtonBox.Ok
+        if has_cancel_button:
+            button_list |= QtWidgets.QDialogButtonBox.Cancel
+        self.buttons = QtWidgets.QDialogButtonBox(button_list)
 
         self.buttons.button(QtWidgets.QDialogButtonBox.Ok).setText(ok_name)
 
@@ -429,8 +429,8 @@ class VersionWindow(QtWidgets.QMainWindow):
         global_layout.addWidget(self.set_version)
 
 
-# PySide2 UI - custom QSpinBox that supports a zero padded syntax
-# Subclass PySide2.QtWidgets.QSpinBox
+# Qt UI - custom QSpinBox that supports a zero padded syntax
+# Subclass Qt.QtWidgets.QSpinBox
 class PaddedSpinBox(QtWidgets.QSpinBox):
     def __init__(self, parent=None):
         super(PaddedSpinBox, self).__init__(parent)

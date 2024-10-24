@@ -16,7 +16,7 @@ from pipe.struct.db import Asset, AssetStub, Sequence, SequenceStub, Shot, ShotS
 
 from .baseclass import DB
 
-from . import shotgun_api3
+from .shotgun_api3 import shotgun_api3
 
 
 log = logging.getLogger(__name__)

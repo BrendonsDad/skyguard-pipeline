@@ -38,10 +38,10 @@ _con.register_structure_hook_factory(
 @attrs.define
 class SGDiffable(Diffable):
     @classmethod
-    def from_sg(cls: Type[_S], sg_stub: Optional[dict]) -> _S:
-        if not sg_stub:
+    def from_sg(cls: Type[_S], sg_dict: Optional[dict]) -> _S:
+        if not sg_dict:
             raise TypeError(f"Cannot create {cls.__name__} from empty dict")
-        return _con.structure(sg_stub, cls)
+        return _con.structure(sg_dict, cls)
 
     @classmethod
     def map_sg_field_names(cls: Type[attrs.AttrsInstance], name: str) -> str:
@@ -69,21 +69,30 @@ class SGDiffable(Diffable):
         return sg_diff
 
 
+@attrs.define
+class SGEntity(SGDiffable):
+    code: str
+    id: int = field(on_setattr=attrs.setters.frozen)
+    path: Optional[str] = field(metadata={_SG_NAME: "sg_path"})
+
+
+@attrs.define
+class SGEntityStub(SGDiffable):
+    id: int
+
+
 @attrs.frozen
-class AssetStub(SGDiffable):
+class AssetStub(SGEntityStub):
     """Represent "stubs" that come from ShotGrid
     Stubs are JSON objects with 3 fields: id, name, and type (which is always Asset in this case)
     """
 
     disp_name: str = field(metadata={_SG_NAME: "name"})
-    id: int
 
 
 @attrs.define
-class Asset(SGDiffable):
-    disp_name: Optional[str] = field(metadata={_SG_NAME: "code"})
+class Asset(SGEntity):
     name: str = field(metadata={_SG_NAME: "sg_pipe_name"})
-    id: Optional[int] = field(on_setattr=attrs.setters.frozen)
     material_variants: set[str] = field(
         metadata={
             _SG_NAME: "sg_material_variants",
@@ -91,7 +100,6 @@ class Asset(SGDiffable):
             _UNSTRUCT_HOOK: lambda mv, _: ",".join(mv) if mv else "",
         }
     )
-    path: Optional[str] = field(metadata={_SG_NAME: "sg_path"})
     parent: Optional[AssetStub] = field(
         metadata={
             _SG_NAME: "parents",
@@ -103,38 +111,42 @@ class Asset(SGDiffable):
     version = None
 
     @property
+    def disp_name(self) -> str:
+        """Alias for code"""
+        return self.code or ""
+
+    @property
     def tex_path(self) -> Optional[str]:
         return f"{self.path}/textures/"
 
 
 @attrs.frozen
-class SequenceStub(SGDiffable):
+class SequenceStub(SGEntityStub):
     """Represent sequence "stubs" that come from ShotGrid"""
 
     code: str = field(metadata={_SG_NAME: "name"})
-    id: int
 
 
 @attrs.define
-class Sequence(SGDiffable):
+class Sequence(SGEntity):
     code: str = field(on_setattr=attrs.setters.frozen)
-    id: int = field(on_setattr=attrs.setters.frozen)
     shots: list[ShotStub]
 
 
 @attrs.frozen
-class ShotStub(SGDiffable):
+class ShotStub(SGEntityStub):
     """Represent shot "stubs" that come from ShotGrid"""
 
     code: str = field(metadata={_SG_NAME: "name"})
-    id: int
 
 
 @attrs.define
-class Shot(SGDiffable):
+class Shot(SGEntity):
+    assets: list[AssetStub] = field(
+        metadata={_STRUCT_HOOK: lambda aa, _: [AssetStub.from_sg(a) for a in aa]}
+    )
     code: str = field(on_setattr=attrs.setters.frozen)
     cut_in: int = field(metadata={_SG_NAME: "sg_cut_in"})
     cut_out: int = field(metadata={_SG_NAME: "sg_cut_out"})
     cut_duration: int = field(metadata={_SG_NAME: "sg_cut_duration"})
-    id: int = field(on_setattr=attrs.setters.frozen)
     sequence: SequenceStub = field(metadata={_SG_NAME: "sg_sequence"})

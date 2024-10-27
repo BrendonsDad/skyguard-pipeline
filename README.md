@@ -2,7 +2,7 @@
 
 
 ## Setting up a dev environment in the labs
-1. Generate a GitHub SSH key and upload it to your GitHub
+1. Generate a GitHub SSH key and upload it to your GitHub (key generation instructions are for Linux)
    - ```bash
      ssh-keygen -t ed25519 -C "yourgithubemail@email.com"
      cat ~/.ssh/github.pub
@@ -12,13 +12,12 @@
    - Go to https://github.com/settings/keys and add the contents of `~/.ssh/github.pub` as a **New SSH key**
 1. Make a local copy of the git repo
    ```bash
-   cd ~/Documents
-   git clone --recurse-submodules -c core.sshCommand='ssh -i ~/.ssh/github' git@github.com:scottdmilner/dungeon-pipeline.git
-   cd dungeon-pipeline
+   git clone --recurse-submodules -c core.sshCommand='ssh -i /h/.ssh/github' git@github.com:cmlkartchner/skyguard-pipeline.git
+   cd skyguard-pipeline
    ```
 1. Configure the git repo to use the new SSH key and our git hooks
    ```bash
-   git config --add --local core.sshCommand 'ssh -i ~/.ssh/github'
+   git config --add --local core.sshCommand 'ssh -i /h/.ssh/github'
    git config --local core.hooksPath .githooks/
    ```
 1. Check out a dev branch for the feature you are working on (or create a general dev branch (`yourname-dev`))
